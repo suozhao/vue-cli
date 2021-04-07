@@ -152,7 +152,7 @@ module.exports = class Creator extends EventEmitter {
       ...resolvePkg(context)
     }
     const deps = Object.keys(preset.plugins)
-    deps.forEach(dep => {
+    deps.forEach(async dep => {
       if (preset.plugins[dep]._isPreset) {
         return
       }

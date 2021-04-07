@@ -1,5 +1,5 @@
 module.exports = cli => {
-  const { chalk, hasGit } = require('@vue/cli-shared-utils')
+  const { chalk, hasGit, execa, error } = require('@vue/cli-shared-utils')
 
   cli.injectFeature({
     name: 'Linter / Formatter',
@@ -18,6 +18,12 @@ module.exports = cli => {
     message: 'Pick a linter / formatter config:',
     description: 'Checking code errors and enforcing an homogeoneous code style is recommended.',
     choices: answers => [
+      {
+        name: 'ESLint + CH168',
+        value: 'ch168',
+        short: 'CH168',
+        checked: true
+      },
       {
         name: 'ESLint with error prevention only',
         value: 'base',
@@ -69,6 +75,19 @@ module.exports = cli => {
   })
 
   cli.onPromptComplete((answers, options) => {
+    if(answers.features.includes('linter') && answers.eslintConfig !== 'tslint'){
+      let version = 'latest'
+      try {
+        let { stdout } = execa.sync('npm', ['info','eslint-config-168','dist-tags'])
+        let a = eval(`() => (${stdout})`)
+        let tag = answers.features.includes('ts') ? 'ts' : 'js'
+        version = a()[tag]
+      } catch (e) {
+        error(`${chalk.cyan('eslint-config-168获取版本号失败')}`)
+      }
+      options.plugins['eslint-config-168'] = {version}
+    }
+    return
     if (answers.features.includes('linter') && answers.eslintConfig !== 'tslint') {
       options.plugins['@vue/cli-plugin-eslint'] = {
         config: answers.eslintConfig,

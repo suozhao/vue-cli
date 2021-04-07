@@ -177,6 +177,7 @@ module.exports = class Generator {
     this.sortPkg()
     this.files['package.json'] = JSON.stringify(this.pkg, null, 2) + '\n'
     // write/update file tree to disk
+    console.log('this.files',this.files)
     await writeFileTree(this.context, this.files, initialFiles)
   }
 
