@@ -1,4 +1,65 @@
 
+
+
+
+
+## 4.5.11 (2021-01-22)
+
+#### :bug: Bug Fix
+* `@vue/cli`
+  * [#6207](https://github.com/vuejs/vue-cli/pull/6207) fix: support basic auth for npm registry access ([@bodograumann](https://github.com/bodograumann))
+
+#### Committers: 1
+- Bodo Graumann ([@bodograumann](https://github.com/bodograumann))
+
+
+
+## 4.5.10 (2021-01-06)
+
+#### :bug: Bug Fix
+* `@vue/cli-plugin-unit-mocha`
+  * [#6186](https://github.com/vuejs/vue-cli/pull/6186) fix(mocha): workaround the ShadowRoot issue in Vue 3.0.5 ([@sodatea](https://github.com/sodatea))
+* `@vue/cli-plugin-unit-mocha`, `@vue/cli-service`
+  * [#6097](https://github.com/vuejs/vue-cli/pull/6097) fix(mocha): disable SSR optimization for Vue 3 testing ([@sodatea](https://github.com/sodatea))
+* `@vue/cli-ui`
+  * [#6000](https://github.com/vuejs/vue-cli/pull/6000) fix: prevent snoretoast shortcut, set notif title (#2720) ([@tony19](https://github.com/tony19))
+* `@vue/cli-service-global`, `@vue/cli-service`
+  * [#5992](https://github.com/vuejs/vue-cli/pull/5992) fix: using `lang` attribute with empty string in html template ([@fangbinwei](https://github.com/fangbinwei))
+
+#### Committers: 3
+- Binwei Fang ([@fangbinwei](https://github.com/fangbinwei))
+- Haoqun Jiang ([@sodatea](https://github.com/sodatea))
+- Tony Trinh ([@tony19](https://github.com/tony19))
+
+
+
+## 4.5.9 (2020-11-17)
+
+#### :rocket: New Features
+* `@vue/cli-plugin-e2e-cypress`
+  * [#6062](https://github.com/vuejs/vue-cli/pull/6062) fix(cypress): allow users to update cypress ([@elevatebart](https://github.com/elevatebart))
+
+#### Committers: 1
+- Barthélémy Ledoux ([@elevatebart](https://github.com/elevatebart))
+
+
+
+## 4.5.8 (2020-10-19)
+
+#### :bug: Bug Fix
+* `@vue/cli-plugin-typescript`
+  * [#5975](https://github.com/vuejs/vue-cli/pull/5975) fix: update vue-shims for Vue v3.0.1 ([@cexbrayat](https://github.com/cexbrayat))
+* `@vue/cli`
+  * [#5961](https://github.com/vuejs/vue-cli/pull/5961) fix: npm 7 compat by turning on `legacy-peer-deps` flag ([@sodatea](https://github.com/sodatea))
+* `@vue/cli-plugin-eslint`
+  * [#5962](https://github.com/vuejs/vue-cli/pull/5962) fix: narrow the eslint peer dep version range, avoiding npm 7 error ([@sodatea](https://github.com/sodatea))
+
+#### Committers: 2
+- Cédric Exbrayat ([@cexbrayat](https://github.com/cexbrayat))
+- Haoqun Jiang ([@sodatea](https://github.com/sodatea))
+
+
+
 ## 4.5.7 (2020-10-07)
 
 #### :bug: Bug Fix
