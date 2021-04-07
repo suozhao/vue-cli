@@ -44,7 +44,7 @@ const {
   loadModule
 } = require('@vue/cli-shared-utils')
 
-const isManualMode = answers => answers.preset === '__manual__'
+const isManualMode = (answers) => answers.preset === '__manual__'
 
 module.exports = class Creator extends EventEmitter {
   constructor (name, context, promptModules) {
@@ -65,17 +65,21 @@ module.exports = class Creator extends EventEmitter {
     this.run = this.run.bind(this)
 
     const promptAPI = new PromptModuleAPI(this)
-    promptModules.forEach(m => m(promptAPI))
+    promptModules.forEach((m) => m(promptAPI))
   }
 
   async create (cliOptions = {}, preset = null) {
-    const isTestOrDebug = process.env.VUE_CLI_TEST || process.env.VUE_CLI_DEBUG
+    const isTestOrDebug =
+            process.env.VUE_CLI_TEST || process.env.VUE_CLI_DEBUG
     const { run, name, context, afterInvokeCbs, afterAnyInvokeCbs } = this
 
     if (!preset) {
       if (cliOptions.preset) {
         // vue create foo --preset bar
-        preset = await this.resolvePreset(cliOptions.preset, cliOptions.clone)
+        preset = await this.resolvePreset(
+          cliOptions.preset,
+          cliOptions.clone
+        )
       } else if (cliOptions.default) {
         // vue create foo --default
         preset = defaults.presets.default
@@ -84,7 +88,9 @@ module.exports = class Creator extends EventEmitter {
         try {
           preset = JSON.parse(cliOptions.inlinePreset)
         } catch (e) {
-          error(`CLI inline preset is not valid JSON: ${cliOptions.inlinePreset}`)
+          error(
+            `CLI inline preset is not valid JSON: ${cliOptions.inlinePreset}`
+          )
           exit(1)
         }
       } else {
@@ -95,9 +101,12 @@ module.exports = class Creator extends EventEmitter {
     // clone before mutating
     preset = cloneDeep(preset)
     // inject core service
-    preset.plugins['@vue/cli-service'] = Object.assign({
-      projectName: name
-    }, preset)
+    preset.plugins['@vue/cli-service'] = Object.assign(
+      {
+        projectName: name
+      },
+      preset
+    )
 
     if (cliOptions.bare) {
       preset.plugins['@vue/cli-service'].bare = true
@@ -116,7 +125,10 @@ module.exports = class Creator extends EventEmitter {
     // Currently we rely on the `plugins` object enumeration order,
     // which depends on the order of the field initialization.
     // FIXME: Remove this ugly hack after the plugin ordering API settled down
-    if (preset.plugins['@vue/cli-plugin-router'] && preset.plugins['@vue/cli-plugin-typescript']) {
+    if (
+      preset.plugins['@vue/cli-plugin-router'] &&
+            preset.plugins['@vue/cli-plugin-typescript']
+    ) {
       const tmp = preset.plugins['@vue/cli-plugin-typescript']
       delete preset.plugins['@vue/cli-plugin-typescript']
       preset.plugins['@vue/cli-plugin-typescript'] = tmp
@@ -127,15 +139,17 @@ module.exports = class Creator extends EventEmitter {
       preset.plugins['@vue/cli-plugin-vuex'] = {}
     }
 
-    const packageManager = (
-      cliOptions.packageManager ||
-      loadOptions().packageManager ||
-      (hasYarn() ? 'yarn' : null) ||
-      (hasPnpm3OrLater() ? 'pnpm' : 'npm')
-    )
+    const packageManager =
+            cliOptions.packageManager ||
+            loadOptions().packageManager ||
+            (hasYarn() ? 'yarn' : null) ||
+            (hasPnpm3OrLater() ? 'pnpm' : 'npm')
 
     await clearConsole()
-    const pm = new PackageManager({ context, forcePackageManager: packageManager })
+    const pm = new PackageManager({
+      context,
+      forcePackageManager: packageManager
+    })
 
     log(`✨  Creating project in ${chalk.yellow(context)}.`)
     this.emit('creation', { event: 'creating' })
@@ -152,7 +166,7 @@ module.exports = class Creator extends EventEmitter {
       ...resolvePkg(context)
     }
     const deps = Object.keys(preset.plugins)
-    deps.forEach(async dep => {
+    deps.forEach(async (dep) => {
       if (preset.plugins[dep]._isPreset) {
         return
       }
@@ -160,8 +174,14 @@ module.exports = class Creator extends EventEmitter {
       let { version } = preset.plugins[dep]
 
       if (!version) {
-        if (isOfficialPlugin(dep) || dep === '@vue/cli-service' || dep === '@vue/babel-preset-env') {
-          version = isTestOrDebug ? `file:${path.resolve(__dirname, '../../../', dep)}` : `~${latestMinor}`
+        if (
+          isOfficialPlugin(dep) ||
+                    dep === '@vue/cli-service' ||
+                    dep === '@vue/babel-preset-env'
+        ) {
+          version = isTestOrDebug
+            ? `file:${path.resolve(__dirname, '../../../', dep)}`
+            : `~${latestMinor}`
         } else {
           version = 'latest'
         }
@@ -186,12 +206,16 @@ module.exports = class Creator extends EventEmitter {
       })
     }
 
-    if (packageManager === 'yarn' && semver.satisfies(process.version, '8.x')) {
+    if (
+      packageManager === 'yarn' &&
+            semver.satisfies(process.version, '8.x')
+    ) {
       // Vue CLI 4.x should support Node 8.x,
       // but some dependenices already bumped `engines` field to Node 10
       // and Yarn treats `engines` field too strictly
       await writeFileTree(context, {
-        '.yarnrc': '# Hotfix for Node 8.x\n--install.ignore-engines true\n'
+        '.yarnrc':
+                    '# Hotfix for Node 8.x\n--install.ignore-engines true\n'
       })
     }
 
@@ -266,7 +290,8 @@ module.exports = class Creator extends EventEmitter {
         await run('git', ['config', 'user.email', 'test@test.com'])
         await run('git', ['config', 'commit.gpgSign', 'false'])
       }
-      const msg = typeof cliOptions.git === 'string' ? cliOptions.git : 'init'
+      const msg =
+                typeof cliOptions.git === 'string' ? cliOptions.git : 'init'
       try {
         await run('git', ['commit', '-m', msg, '--no-verify'])
       } catch (e) {
@@ -280,8 +305,18 @@ module.exports = class Creator extends EventEmitter {
     if (!cliOptions.skipGetStarted) {
       log(
         `👉  Get started with the following commands:\n\n` +
-        (this.context === process.cwd() ? `` : chalk.cyan(` ${chalk.gray('$')} cd ${name}\n`)) +
-        chalk.cyan(` ${chalk.gray('$')} ${packageManager === 'yarn' ? 'yarn serve' : packageManager === 'pnpm' ? 'pnpm run serve' : 'npm run serve'}`)
+                    (this.context === process.cwd()
+                      ? ``
+                      : chalk.cyan(` ${chalk.gray('$')} cd ${name}\n`)) +
+                    chalk.cyan(
+                      ` ${chalk.gray('$')} ${
+                        packageManager === 'yarn'
+                          ? 'yarn serve'
+                          : packageManager === 'pnpm'
+                            ? 'pnpm run serve'
+                            : 'npm run serve'
+                      }`
+                    )
       )
     }
     log()
@@ -290,7 +325,7 @@ module.exports = class Creator extends EventEmitter {
     if (gitCommitFailed) {
       warn(
         `Skipped git commit due to missing username and email in git config, or failed to sign commit.\n` +
-        `You will need to perform the initial commit yourself.\n`
+                    `You will need to perform the initial commit yourself.\n`
       )
     }
 
@@ -298,7 +333,9 @@ module.exports = class Creator extends EventEmitter {
   }
 
   run (command, args) {
-    if (!args) { [command, ...args] = command.split(/\s+/) }
+    if (!args) {
+      ;[command, ...args] = command.split(/\s+/)
+    }
     return execa(command, args, { cwd: this.context })
   }
 
@@ -327,16 +364,24 @@ module.exports = class Creator extends EventEmitter {
       }
       answers.features = answers.features || []
       // run cb registered by prompt modules to finalize the preset
-      this.promptCompleteCbs.forEach(cb => cb(answers, preset))
+      this.promptCompleteCbs.forEach((cb) => cb(answers, preset))
     }
 
     // validate
     validatePreset(preset)
 
     // save preset
-    if (answers.save && answers.saveName && savePreset(answers.saveName, preset)) {
+    if (
+      answers.save &&
+            answers.saveName &&
+            savePreset(answers.saveName, preset)
+    ) {
       log()
-      log(`🎉  Preset ${chalk.yellow(answers.saveName)} saved in ${chalk.yellow(rcPath)}`)
+      log(
+        `🎉  Preset ${chalk.yellow(
+          answers.saveName
+        )} saved in ${chalk.yellow(rcPath)}`
+      )
     }
 
     debug('vue-cli:preset')(preset)
@@ -349,7 +394,11 @@ module.exports = class Creator extends EventEmitter {
 
     if (name in savedPresets) {
       preset = savedPresets[name]
-    } else if (name.endsWith('.json') || /^\./.test(name) || path.isAbsolute(name)) {
+    } else if (
+      name.endsWith('.json') ||
+            /^\./.test(name) ||
+            path.isAbsolute(name)
+    ) {
       preset = await loadLocalPreset(path.resolve(name))
     } else if (name.includes('/')) {
       log(`Fetching remote preset ${chalk.cyan(name)}...`)
@@ -383,7 +432,8 @@ module.exports = class Creator extends EventEmitter {
     rawPlugins = sortObject(rawPlugins, ['@vue/cli-service'], true)
     const plugins = []
     for (const id of Object.keys(rawPlugins)) {
-      const apply = loadModule(`${id}/generator`, this.context) || (() => {})
+      const apply =
+                loadModule(`${id}/generator`, this.context) || (() => {})
       let options = rawPlugins[id] || {}
 
       if (options.prompts) {
@@ -400,7 +450,11 @@ module.exports = class Creator extends EventEmitter {
           }
 
           log()
-          log(`${chalk.cyan(options._isPreset ? `Preset options:` : id)}`)
+          log(
+            `${chalk.cyan(
+              options._isPreset ? `Preset options:` : id
+            )}`
+          )
           options = await prompt(pluginPrompts)
         }
       }
@@ -462,7 +516,8 @@ module.exports = class Creator extends EventEmitter {
         name: 'useConfigFiles',
         when: isManualMode,
         type: 'list',
-        message: 'Where do you prefer placing config for Babel, ESLint, etc.?',
+        message:
+                    'Where do you prefer placing config for Babel, ESLint, etc.?',
         choices: [
           {
             name: 'In dedicated config files',
@@ -483,7 +538,7 @@ module.exports = class Creator extends EventEmitter {
       },
       {
         name: 'saveName',
-        when: answers => answers.save,
+        when: (answers) => answers.save,
         type: 'input',
         message: 'Save preset as:'
       }
@@ -519,7 +574,8 @@ module.exports = class Creator extends EventEmitter {
       outroPrompts.push({
         name: 'packageManager',
         type: 'list',
-        message: 'Pick the package manager to use when installing dependencies:',
+        message:
+                    'Pick the package manager to use when installing dependencies:',
         choices: packageManagerChoices
       })
     }
@@ -529,9 +585,9 @@ module.exports = class Creator extends EventEmitter {
 
   resolveFinalPrompts () {
     // patch generator-injected prompts to only show in manual mode
-    this.injectedPrompts.forEach(prompt => {
+    this.injectedPrompts.forEach((prompt) => {
       const originalWhen = prompt.when || (() => true)
-      prompt.when = answers => {
+      prompt.when = (answers) => {
         return isManualMode(answers) && originalWhen(answers)
       }
     })

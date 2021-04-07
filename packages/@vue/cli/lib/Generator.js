@@ -67,7 +67,7 @@ const reservedConfigTransforms = {
   })
 }
 
-const ensureEOL = str => {
+const ensureEOL = (str) => {
   if (str.charAt(str.length - 1) !== '\n') {
     return str + '\n'
   }
@@ -75,14 +75,17 @@ const ensureEOL = str => {
 }
 
 module.exports = class Generator {
-  constructor (context, {
-    pkg = {},
-    plugins = [],
-    afterInvokeCbs = [],
-    afterAnyInvokeCbs = [],
-    files = {},
-    invoking = false
-  } = {}) {
+  constructor (
+    context,
+    {
+      pkg = {},
+      plugins = [],
+      afterInvokeCbs = [],
+      afterAnyInvokeCbs = [],
+      files = {},
+      invoking = false
+    } = {}
+  ) {
     this.context = context
     this.plugins = plugins
     this.originalPkg = pkg
@@ -109,10 +112,10 @@ module.exports = class Generator {
 
     // load all the other plugins
     this.allPluginIds = Object.keys(this.pkg.dependencies || {})
-      .concat(Object.keys(this.pkg.devDependencies || {}))
-      .filter(isPlugin)
+            .concat(Object.keys(this.pkg.devDependencies || {}))
+            .filter(isPlugin)
 
-    const cliService = plugins.find(p => p.id === '@vue/cli-service')
+    const cliService = plugins.find((p) => p.id === '@vue/cli-service')
     const rootOptions = cliService
       ? cliService.options
       : inferRootOptions(pkg)
@@ -122,7 +125,7 @@ module.exports = class Generator {
 
   async initPlugins () {
     const { rootOptions, invoking } = this
-    const pluginIds = this.plugins.map(p => p.id)
+    const pluginIds = this.plugins.map((p) => p.id)
 
     // apply hooks from all plugins
     for (const id of this.allPluginIds) {
@@ -161,10 +164,7 @@ module.exports = class Generator {
     }
   }
 
-  async generate ({
-    extractConfigFiles = false,
-    checkExisting = false
-  } = {}) {
+  async generate ({ extractConfigFiles = false, checkExisting = false } = {}) {
     await this.initPlugins()
 
     // save the file system before applying plugin for comparison
@@ -177,22 +177,23 @@ module.exports = class Generator {
     this.sortPkg()
     this.files['package.json'] = JSON.stringify(this.pkg, null, 2) + '\n'
     // write/update file tree to disk
-    console.log('this.files',this.files)
+    console.log('this.files', this.files)
     await writeFileTree(this.context, this.files, initialFiles)
   }
 
   extractConfigFiles (extractAll, checkExisting) {
-    const configTransforms = Object.assign({},
+    const configTransforms = Object.assign(
+      {},
       defaultConfigTransforms,
       this.configTransforms,
       reservedConfigTransforms
     )
-    const extract = key => {
+    const extract = (key) => {
       if (
         configTransforms[key] &&
-        this.pkg[key] &&
-        // do not extract if the field exists in original package.json
-        !this.originalPkg[key]
+                this.pkg[key] &&
+                // do not extract if the field exists in original package.json
+                !this.originalPkg[key]
       ) {
         const value = this.pkg[key]
         const configTransform = configTransforms[key]
@@ -274,7 +275,7 @@ module.exports = class Generator {
     normalizeFilePaths(files)
 
     // handle imports and root option injections
-    Object.keys(files).forEach(file => {
+    Object.keys(files).forEach((file) => {
       let imports = this.imports[file]
       imports = imports instanceof Set ? Array.from(imports) : imports
       if (imports && imports.length > 0) {
@@ -286,7 +287,8 @@ module.exports = class Generator {
       }
 
       let injections = this.rootOptions[file]
-      injections = injections instanceof Set ? Array.from(injections) : injections
+      injections =
+                injections instanceof Set ? Array.from(injections) : injections
       if (injections && injections.length > 0) {
         files[file] = runTransformation(
           { path: file, source: files[file] },
@@ -303,21 +305,20 @@ module.exports = class Generator {
   }
 
   hasPlugin (_id, _version) {
-    return [
-      ...this.plugins.map(p => p.id),
-      ...this.allPluginIds
-    ].some(id => {
-      if (!matchesPluginId(_id, id)) {
-        return false
-      }
+    return [...this.plugins.map((p) => p.id), ...this.allPluginIds].some(
+      (id) => {
+        if (!matchesPluginId(_id, id)) {
+          return false
+        }
 
-      if (!_version) {
-        return true
-      }
+        if (!_version) {
+          return true
+        }
 
-      const version = this.pm.getInstalledVersion(id)
-      return semver.satisfies(version, _version)
-    })
+        const version = this.pm.getInstalledVersion(id)
+        return semver.satisfies(version, _version)
+      }
+    )
   }
 
   printExitLogs () {

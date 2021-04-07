@@ -1,4 +1,4 @@
-module.exports = cli => {
+module.exports = (cli) => {
   const { chalk, hasGit, execa, error } = require('@vue/cli-shared-utils')
 
   cli.injectFeature({
@@ -6,18 +6,20 @@ module.exports = cli => {
     value: 'linter',
     short: 'Linter',
     description: 'Check and enforce code quality with ESLint or Prettier',
-    link: 'https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint',
+    link:
+            'https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint',
     plugins: ['eslint'],
     checked: true
   })
 
   cli.injectPrompt({
     name: 'eslintConfig',
-    when: answers => answers.features.includes('linter'),
+    when: (answers) => answers.features.includes('linter'),
     type: 'list',
     message: 'Pick a linter / formatter config:',
-    description: 'Checking code errors and enforcing an homogeoneous code style is recommended.',
-    choices: answers => [
+    description:
+            'Checking code errors and enforcing an homogeoneous code style is recommended.',
+    choices: (answers) => [
       {
         name: 'ESLint + CH168',
         value: 'ch168',
@@ -44,22 +46,22 @@ module.exports = cli => {
         value: 'prettier',
         short: 'Prettier'
       },
-      ...(
-        answers.features.includes('ts')
-          ? [{
+      ...(answers.features.includes('ts')
+        ? [
+          {
             name: `TSLint (deprecated)`,
             value: 'tslint',
             short: 'TSLint'
-          }]
-          : []
-      )
+          }
+        ]
+        : [])
     ]
   })
 
   cli.injectPrompt({
     name: 'lintOn',
     message: 'Pick additional lint features:',
-    when: answers => answers.features.includes('linter'),
+    when: (answers) => answers.features.includes('linter'),
     type: 'checkbox',
     choices: [
       {
@@ -68,27 +70,39 @@ module.exports = cli => {
         checked: true
       },
       {
-        name: 'Lint and fix on commit' + (hasGit() ? '' : chalk.red(' (requires Git)')),
+        name:
+                    'Lint and fix on commit' +
+                    (hasGit() ? '' : chalk.red(' (requires Git)')),
         value: 'commit'
       }
     ]
   })
 
   cli.onPromptComplete((answers, options) => {
-    if(answers.features.includes('linter') && answers.eslintConfig !== 'tslint'){
+    if (
+      answers.features.includes('linter') &&
+            answers.eslintConfig !== 'tslint'
+    ) {
       let version = 'latest'
       try {
-        let { stdout } = execa.sync('npm', ['info','eslint-config-168','dist-tags'])
+        const { stdout } = execa.sync('npm', [
+          'info',
+          'eslint-config-168',
+          'dist-tags'
+        ])
         let a = eval(`() => (${stdout})`)
-        let tag = answers.features.includes('ts') ? 'ts' : 'js'
+        const tag = answers.features.includes('ts') ? 'ts' : 'js'
         version = a()[tag]
       } catch (e) {
         error(`${chalk.cyan('eslint-config-168获取版本号失败')}`)
       }
-      options.plugins['eslint-config-168'] = {version}
+      options.plugins['eslint-config-168'] = { version }
     }
     return
-    if (answers.features.includes('linter') && answers.eslintConfig !== 'tslint') {
+    if (
+      answers.features.includes('linter') &&
+            answers.eslintConfig !== 'tslint'
+    ) {
       options.plugins['@vue/cli-plugin-eslint'] = {
         config: answers.eslintConfig,
         lintOn: answers.lintOn
