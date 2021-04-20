@@ -26,35 +26,35 @@ module.exports = (cli) => {
         short: 'CH168',
         checked: true
       },
-      {
-        name: 'ESLint with error prevention only',
-        value: 'base',
-        short: 'Basic'
-      },
-      {
-        name: 'ESLint + Airbnb config',
-        value: 'airbnb',
-        short: 'Airbnb'
-      },
-      {
-        name: 'ESLint + Standard config',
-        value: 'standard',
-        short: 'Standard'
-      },
-      {
-        name: 'ESLint + Prettier',
-        value: 'prettier',
-        short: 'Prettier'
-      },
-      ...(answers.features.includes('ts')
-        ? [
-          {
-            name: `TSLint (deprecated)`,
-            value: 'tslint',
-            short: 'TSLint'
-          }
-        ]
-        : [])
+      // {
+      //   name: 'ESLint with error prevention only',
+      //   value: 'base',
+      //   short: 'Basic'
+      // },
+      // {
+      //   name: 'ESLint + Airbnb config',
+      //   value: 'airbnb',
+      //   short: 'Airbnb'
+      // },
+      // {
+      //   name: 'ESLint + Standard config',
+      //   value: 'standard',
+      //   short: 'Standard'
+      // },
+      // {
+      //   name: 'ESLint + Prettier',
+      //   value: 'prettier',
+      //   short: 'Prettier'
+      // },
+      // ...(answers.features.includes('ts')
+      //   ? [
+      //     {
+      //       name: `TSLint (deprecated)`,
+      //       value: 'tslint',
+      //       short: 'TSLint'
+      //     }
+      //   ]
+      //   : [])
     ]
   })
 
@@ -70,9 +70,7 @@ module.exports = (cli) => {
         checked: true
       },
       {
-        name:
-                    'Lint and fix on commit' +
-                    (hasGit() ? '' : chalk.red(' (requires Git)')),
+        name: 'Lint and fix on commit' + (hasGit() ? '' : chalk.red(' (requires Git)')),
         value: 'commit'
       }
     ]
@@ -83,29 +81,25 @@ module.exports = (cli) => {
       answers.features.includes('linter') &&
             answers.eslintConfig !== 'tslint'
     ) {
-      let version = 'latest'
-      try {
-        const { stdout } = execa.sync('npm', [
-          'info',
-          'eslint-config-168',
-          'dist-tags'
-        ])
-        let a = eval(`() => (${stdout})`)
-        const tag = answers.features.includes('ts') ? 'ts' : 'js'
-        version = a()[tag]
-      } catch (e) {
-        error(`${chalk.cyan('eslint-config-168获取版本号失败')}`)
-      }
-      options.plugins['eslint-config-168'] = { version }
-    }
-    return
-    if (
-      answers.features.includes('linter') &&
-            answers.eslintConfig !== 'tslint'
-    ) {
-      options.plugins['@vue/cli-plugin-eslint'] = {
-        config: answers.eslintConfig,
-        lintOn: answers.lintOn
+      if(answers.eslintConfig == 'ch168'){
+        let version = 'latest'
+        try {
+          const { stdout } = execa.sync('npm', [
+            'info',
+            'eslint-config-168',
+            'dist-tags'
+          ])
+          let a = eval(`() => (${stdout})`)
+          version = answers.features.includes('ts') ? a()['ts'] : 'latest'
+        } catch (e) {
+          error(`${chalk.cyan('eslint-config-168获取版本号失败')}`)
+        }
+        options.plugins['eslint-config-168'] = { version }
+      } else {
+        options.plugins['@vue/cli-plugin-eslint'] = {
+          config: answers.eslintConfig,
+          lintOn: answers.lintOn
+        }
       }
     }
   })

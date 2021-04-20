@@ -126,7 +126,6 @@ module.exports = class Generator {
   async initPlugins () {
     const { rootOptions, invoking } = this
     const pluginIds = this.plugins.map((p) => p.id)
-
     // apply hooks from all plugins
     for (const id of this.allPluginIds) {
       const api = new GeneratorAPI(id, this, {}, rootOptions)
@@ -177,7 +176,6 @@ module.exports = class Generator {
     this.sortPkg()
     this.files['package.json'] = JSON.stringify(this.pkg, null, 2) + '\n'
     // write/update file tree to disk
-    console.log('this.files', this.files)
     await writeFileTree(this.context, this.files, initialFiles)
   }
 
